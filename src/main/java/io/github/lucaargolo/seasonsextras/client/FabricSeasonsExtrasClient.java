@@ -12,6 +12,7 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.item.ModelPredicateProviderRegistry;
@@ -87,7 +88,9 @@ public class FabricSeasonsExtrasClient implements ClientModInitializer {
             MinecraftClient client = MinecraftClient.getInstance();
             TooltipRenderer.render(client, drawContext, counter);
         }));
-        FabricSeasonsExtrasPatchouliCompatClient.onInitializeClient();
+
+        if(FabricLoader.getInstance().isModLoaded("patchouli"))
+            FabricSeasonsExtrasPatchouliCompatClient.onInitializeClient();
     }
 
     //I don't know what this is but it kind of works
