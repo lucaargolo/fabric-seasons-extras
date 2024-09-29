@@ -128,7 +128,8 @@ public class FabricSeasonsExtras implements ModInitializer {
         addToTab(i -> FabricLoader.getInstance().isModLoaded("patchouli"), Registry.register(Registries.ITEM, SEASONAL_COMPENDIUM_ITEM_ID, new SeasonalCompendiumItem(new Item.Settings())));
         addToTab(i -> FabricSeasons.CONFIG.isSeasonMessingCrops(), Registry.register(Registries.ITEM, ModIdentifier.of("crop_season_tester"), new CropSeasonTesterItem(new Item.Settings())));
 
-        FabricSeasonsExtrasPatchouliCompat.onInitialize();
+        if(FabricLoader.getInstance().isModLoaded("patchouli"))
+            FabricSeasonsExtrasPatchouliCompat.onInitialize();
 
         PayloadTypeRegistry.playC2S().register(SendModulePressPacket.ID, SendModulePressPacket.CODEC);
 
