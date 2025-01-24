@@ -55,7 +55,7 @@ public class FabricSeasonsExtras implements ModInitializer {
 
     //Blocks
     public static SeasonCalendarBlock SEASON_CALENDAR_BLOCK;
-    public static GreenhouseGlassBlock[] GREENHOUSE_GLASS_BLOCKS = new GreenhouseGlassBlock[17];
+    public static GreenhouseGlassBlock[] GREENHOUSE_GLASS_BLOCKS = new GreenhouseGlassBlock[DyeColor.values().length + 1];
 
     //Items
     public static ModIdentifier SEASONAL_COMPENDIUM_ITEM_ID = new ModIdentifier("seasonal_compendium");
@@ -103,7 +103,7 @@ public class FabricSeasonsExtras implements ModInitializer {
         }
         GreenhouseGlassBlock tintedGreenhouseGlass = Registry.register(Registries.BLOCK, new ModIdentifier("tinted_greenhouse_glass"), new GreenhouseGlassBlock(true, FabricBlockSettings.copyOf(Blocks.TINTED_GLASS)));
         addToTab(i -> FabricSeasons.CONFIG.isSeasonMessingCrops(), Registry.register(Registries.ITEM, new ModIdentifier("tinted_greenhouse_glass"), new GreenHouseGlassItem(tintedGreenhouseGlass, new Item.Settings())));
-        GREENHOUSE_GLASS_BLOCKS[16] = tintedGreenhouseGlass;
+        GREENHOUSE_GLASS_BLOCKS[DyeColor.values().length] = tintedGreenhouseGlass;
         GREENHOUSE_GLASS_TYPE = Registry.register(Registries.BLOCK_ENTITY_TYPE, new ModIdentifier("greenhouse_glass"), FabricBlockEntityTypeBuilder.create(GreenhouseGlassBlockEntity::new, GREENHOUSE_GLASS_BLOCKS).build(null));
 
         AirConditioningBlock heaterBlock = Registry.register(Registries.BLOCK, new ModIdentifier("heater"), new AirConditioningBlock(Conditioning.HEATER, FabricBlockSettings.copyOf(Blocks.COBBLESTONE).luminance(state -> state.get(AirConditioningBlock.LEVEL) * 5)));
