@@ -2,16 +2,18 @@
   "parent": "minecraft:recipes/root",
   "rewards": {
     "recipes": [
-      "seasonsextras:season_calendar"
+      "seasonsextras:season_detector"
     ]
   },
   "criteria": {
-    "has_clock": {
+    "has_detector": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
           {
-            "item": "minecraft:clock"
+            "items": [
+              "minecraft:daylight_detector"
+            ]
           }
         ]
       }
@@ -19,7 +21,7 @@
   },
   "requirements": [
     [
-      "has_clock"
+      "has_detector"
     ]
   ]
 }
