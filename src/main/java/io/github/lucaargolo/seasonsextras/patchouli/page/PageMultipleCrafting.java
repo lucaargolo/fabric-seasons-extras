@@ -22,7 +22,7 @@ public class PageMultipleCrafting extends PageCrafting implements Tickable {
         super.build(level, entry, builder, pageNum);
         loadedRecipes = new Recipe[recipes.length];
         for(int i = 0; i < recipes.length; i++) {
-            loadedRecipes[i] = loadRecipe(level, builder, entry, recipes[i]);
+            loadedRecipes[i] = loadRecipe(level, builder, entry, recipes[i], true);
         }
     }
 

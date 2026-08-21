@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import io.github.lucaargolo.seasons.FabricSeasons;
 import io.github.lucaargolo.seasonsextras.utils.ModIdentifier;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -61,7 +62,7 @@ public class GuiBookLandingMixin extends GuiBook {
             dummyJson.add("icon", new JsonPrimitive("minecraft:air"));
             dummyJson.add("pages", new JsonArray());
             dummyJson.add("read_by_default", new JsonPrimitive(true));
-            dummyEntry = new BookEntry(dummyJson, Identifier.of(""), capturedBook, null);
+            dummyEntry = new BookEntry(dummyJson, Identifier.of(""), capturedBook, null, MinecraftClient.getInstance().world.getRegistryManager());
         }
     }
 

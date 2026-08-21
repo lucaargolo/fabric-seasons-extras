@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.github.lucaargolo.seasonsextras.patchouli.PatchouliModifications;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,8 +23,8 @@ import java.util.function.Function;
 @Mixin(value = BookContentsBuilder.class, remap = false)
 public class BookContentsBuilderMixin {
 
-    @Inject(at = @At(value = "INVOKE", target="Lvazkii/patchouli/client/book/BookEntry;<init>(Lcom/google/gson/JsonObject;Lnet/minecraft/util/Identifier;Lvazkii/patchouli/common/book/Book;Ljava/lang/String;)V", remap = true), method = "loadEntry", locals = LocalCapture.CAPTURE_FAILSOFT)
-    private static void injectPagesAtLoad(Book book, BookContentLoader loader, Identifier id, Identifier file, Function<Identifier, BookCategory> categories, CallbackInfoReturnable<@Nullable BookEntry> cir, BookContentLoader.LoadResult result) {
+    @Inject(at = @At(value = "INVOKE", target="Lvazkii/patchouli/client/book/BookEntry;<init>(Lcom/google/gson/JsonObject;Lnet/minecraft/util/Identifier;Lvazkii/patchouli/common/book/Book;Ljava/lang/String;Lnet/minecraft/registry/RegistryWrapper$WrapperLookup;)V", remap = true), method = "loadEntry", locals = LocalCapture.CAPTURE_FAILSOFT)
+    private static void injectPagesAtLoad(Book book, BookContentLoader loader, Identifier id, Identifier file, Function<Identifier, BookCategory> categories, RegistryWrapper.WrapperLookup registries, CallbackInfoReturnable<@Nullable BookEntry> cir, BookContentLoader.LoadResult result) {
         if(result.json().isJsonObject()) {
             JsonObject object = result.json().getAsJsonObject();
             JsonElement element = object.get("pages");
