@@ -1,10 +1,11 @@
 import com.matthewprenger.cursegradle.CurseArtifact
 import com.matthewprenger.cursegradle.CurseProject
 import com.matthewprenger.cursegradle.CurseRelation
-import com.matthewprenger.cursegradle.Options
 import org.ajoberstar.grgit.Grgit
 import org.kohsuke.github.GHReleaseBuilder
 import org.kohsuke.github.GitHub
+import java.util.Locale
+import java.util.Locale.getDefault
 
 buildscript {
     dependencies {
@@ -16,7 +17,7 @@ plugins {
     id("maven-publish")
     id("fabric-loom")
     id("org.ajoberstar.grgit")
-    id("com.matthewprenger.cursegradle")
+    id("de.maxhenkel.cursegradle")
     id("com.modrinth.minotaur")
 }
 
@@ -35,8 +36,7 @@ group = project["maven_group"]
 val environment: Map<String, String> = System.getenv()
 val releaseName = "${name.split("-").joinToString(" ") { it.capitalize() }} ${(version as String).split("+")[0]}"
 val releaseType = (version as String).split("+")[0].split("-").let { if(it.size > 1) if(it[1] == "BETA" || it[1] == "ALPHA") it[1] else "ALPHA" else "RELEASE" }
-val releaseFile = "${buildDir}/libs/${base.archivesName.get()}-${version}.jar"
-val cfGameVersion = (version as String).split("+")[1].let{ if(!project["minecraft_version"].contains("-") && project["minecraft_version"].startsWith(it)) project["minecraft_version"] else "$it-Snapshot"}
+val releaseFile = "${layout.buildDirectory}/libs/${base.archivesName.get()}-${version}.jar"
 
 fun getChangeLog(): String {
     return "A changelog can be found at https://github.com/lucaargolo/$name/commits/"
@@ -48,7 +48,7 @@ fun getBranch(): String {
     }
     val grgit = try {
         extensions.getByName("grgit") as Grgit
-    }catch (ignored: Exception) {
+    }catch (_: Exception) {
         return "unknown"
     }
     val branch = grgit.branch.current().name
@@ -143,48 +143,14 @@ task("github") {
     }
 }
 
-//Curseforge publishing
-curseforge {
-    environment["CURSEFORGE_API_KEY"]?.let { apiKey = it }
-
-    project(closureOf<CurseProject> {
-        id = project["curseforge_id"]
-        changelog = getChangeLog()
-        releaseType = this@Build_gradle.releaseType.toLowerCase()
-        addGameVersion(cfGameVersion)
-        addGameVersion("Fabric")
-
-        mainArtifact(file(releaseFile), closureOf<CurseArtifact> {
-            displayName = releaseName
-            relations(closureOf<CurseRelation> {
-                requiredDependency("fabric-seasons")
-                requiredDependency("fabric-api")
-            })
-        })
-
-        afterEvaluate {
-            uploadTask.dependsOn("remapJar")
-        }
-
-    })
-
-    options(closureOf<Options> {
-        forgeGradleIntegration = false
-    })
-}
-
 //Modrinth publishing
 modrinth {
     environment["MODRINTH_TOKEN"]?.let { token.set(it) }
 
     projectId.set(project["modrinth_id"])
-    changelog.set(getChangeLog())
-
-    versionNumber.set(version as String)
-    versionName.set(releaseName)
-    versionType.set(releaseType.toLowerCase())
-
     uploadFile.set(tasks.remapJar.get())
+    versionName.set(releaseName)
+    versionType.set(releaseType.lowercase(getDefault()))
 
     gameVersions.add(project["minecraft_version"])
     loaders.add("fabric")
@@ -196,4 +162,50 @@ modrinth {
 }
 tasks.modrinth.configure {
     group = "upload"
+}
+
+//Curseforge publishing
+val cfReleaseType = releaseType.lowercase(getDefault())
+curseforge {
+    environment["CURSEFORGE_API_KEY"]?.let { apiKey = it }
+
+    project(closureOf<CurseProject> {
+        id = project["curseforge_id"]
+        mainArtifact(tasks.remapJar.get(), closureOf<CurseArtifact> {
+            displayName = releaseName
+            releaseType = cfReleaseType
+            addGameVersion(project["minecraft_version"])
+            addGameVersion("Fabric")
+            addGameVersion("Client")
+            addGameVersion("Server")
+
+            relations(closureOf<CurseRelation> {
+                requiredDependency("fabric-seasons")
+                requiredDependency("fabric-api")
+            })
+        })
+
+        afterEvaluate {
+            uploadTask.dependsOn(tasks.remapJar.get())
+        }
+    })
+}
+
+//Maven publishing
+publishing {
+    publications {
+        register<MavenPublication>("mavenJava") {
+            artifactId = base.archivesName.get()
+            from(components["java"])
+        }
+    }
+    repositories {
+        maven {
+            url = uri("https://maven.cafeteria.dev/releases")
+            credentials {
+                username = System.getenv("MAVEN_USERNAME")
+                password = System.getenv("MAVEN_PASSWORD")
+            }
+        }
+    }
 }
